@@ -1,0 +1,26 @@
+//Full Adder
+module full_adder(output sum, output carry, input x, input y, input z);
+    wire s1, c1, c2;
+    xor(s1, x, y);
+    and(c1, x, y);
+    xor(sum, s1, z);
+    and(c2, s1, z);
+    or(carry, c1, c2);
+endmodule
+
+//4x1 Multiplexer
+module multiplexer (output out, input a,  input b,  input c, input d, input s0, input s1);
+    always @(s0 or s1)
+    begin
+        if (s0 == 0 and s1 == 0)
+            out <= a;
+        else if (s0 == 1 and s1 == 0)
+            out <= b;
+        else if (s0 == 0 and s1 == 1)
+            out <= c;
+        else if (s0 == 1 and s1 == 1)
+            out <= d;
+    end
+endmodule
+
+//
