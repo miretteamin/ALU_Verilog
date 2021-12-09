@@ -1,3 +1,18 @@
+//Anding 4 dataflow
+module and_3 (output out, input a, input b,  input c);
+    wire andout;
+    and(andout, a, b);
+    and(out, andout, c);
+endmodule
+
+//Oring 4 dataflow
+module or_4 (output out, input a, input b,  input c, input d);
+    wire orout1, orout2;
+    or(orout1, a, b);
+    or(orout2, c, d);
+    or(out, orout1, orout2)
+endmodule
+
 //Full Adder
 module full_adder(output sum, output carry, input x, input y, input z);
     wire s1, c1, c2;
@@ -10,17 +25,21 @@ endmodule
 
 //4x1 Multiplexer
 module multiplexer (output out, input a,  input b,  input c, input d, input s0, input s1);
-    always @(s0 or s1)
-    begin
-        if (s0 == 0 and s1 == 0)
-            out <= a;
-        else if (s0 == 1 and s1 == 0)
-            out <= b;
-        else if (s0 == 0 and s1 == 1)
-            out <= c;
-        else if (s0 == 1 and s1 == 1)
-            out <= d;
-    end
+    wire ns0, ns1;
+    not(ns0,s0);
+    not(ns1,s1);
+
+    wire o1, o2, o3, o4;
+    and_3(o1, ns0, ns1, a);
+    and_3(o2, s0, ns1, b);
+    and_3(o3, ns0, s1, c);
+    and_3(o4, s0, s1, d);
+
+    or_4(out, o1, o2, o3, o4);
+
 endmodule
 
-//
+//ALU
+module ALU (output carry, output [3:0] out, input [3:0] a, input[3:0] b, input [2:0] sel);
+    
+endmodule
