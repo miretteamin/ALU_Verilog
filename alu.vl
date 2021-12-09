@@ -14,17 +14,17 @@ module or_4 (output out, input a, input b,  input c, input d);
 endmodule
 
 //Full Adder
-module full_adder(output sum, output carry, input x, input y, input z);
+module full_adder(output sum, output carry, input x, input y, input cin);
     wire s1, c1, c2;
     xor(s1, x, y);
     and(c1, x, y);
-    xor(sum, s1, z);
-    and(c2, s1, z);
+    xor(sum, s1, cin);
+    and(c2, s1, cin);
     or(carry, c1, c2);
 endmodule
 
 //4x1 Multiplexer
-module multiplexer (output out, input a,  input b,  input c, input d, input s0, input s1);
+module mux4x1 (output out, input a,  input b,  input c, input d, input s1, input s0);
     wire ns0, ns1;
     not(ns0,s0);
     not(ns1,s1);
@@ -36,10 +36,42 @@ module multiplexer (output out, input a,  input b,  input c, input d, input s0, 
     and_3(o4, s0, s1, d);
 
     or_4(out, o1, o2, o3, o4);
-
 endmodule
 
-//ALU
-module ALU (output carry, output [3:0] out, input [3:0] a, input[3:0] b, input [2:0] sel);
-    
+//2x1 Multiplexer
+module mux2x1 (output out, input a,  input b, input s);
+    wire ns;
+    not(ns,s);
+
+    wire o1, o2;
+    and(o1, ns, a);
+    and(o2, s, b);
+
+    or(out, o1, o2);
+endmodule
+
+//Arithmetic Circuit 
+module ac (output [3:0] out, output carry, input[3:0] a, input[3:0] b, input s, input cin);
+
+    wire o1, o2, o3, o4, c1, c2, c3;
+    wire nb0, nb1, nb2, nb3;
+
+    not(nb0,b[0]);
+    not(nb1,b[1]);
+    not(nb2,b[2]);
+    not(nb3,b[3]);
+
+
+    mux4x1(o1, b[0], nb0, 1'b0, 1'b1, sel[1], sel[0]);
+    full_adder(out[0], c1, a[0], o1, cin);
+
+    mux4x1(o2, b[1], nb1, 1'b0, 1'b1, sel[1], sel[0]);
+    full_adder(out[1], c2, a[1], o2, c1);
+
+    mux4x1(o3, b[2], nb2, 1'b0, 1'b1, sel[1], sel[0]);
+    full_adder(out[2], c3, a[2], o3, c2);
+
+    mux4x1(o4, b[3], nb3, 1'b0, 1'b1, sel[1], sel[0]);
+    full_adder(out[3], carry, a[3], o4, c3);
+
 endmodule
