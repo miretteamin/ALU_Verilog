@@ -50,8 +50,18 @@ module mux2x1 (output out, input a,  input b, input s);
     or(out, o1, o2);
 endmodule
 
-//Arithmetic Circuit 
-module ac (output [3:0] out, output carry, input[3:0] a, input[3:0] b, input s, input cin);
+//Arithmetic Circuit: 4 operations
+module ac (output [3:0] out, output carry, input[3:0] a, input[3:0] b, input[1:0] sel);
+
+    /* 
+                *----Description----*
+    * Adding 2 numbers: s1 = 0 , s0 = 0, cin = 0
+    * Subtracting 2 numbers: s1 = 0, s0 = 1, cin = 1 
+    * Adding 1 to a number: s1 = 1, s0 = 0, cin = 1
+    * Subtracting 1 from a number: s1 = 1, s0 = 1, cin = 0
+
+    * So, cin is XOR of s0 and s1  then cin will be 1 in case of adding 1 to number and subtraction 2 numbers
+    */
 
     wire o1, o2, o3, o4, c1, c2, c3;
     wire nb0, nb1, nb2, nb3;
@@ -61,6 +71,8 @@ module ac (output [3:0] out, output carry, input[3:0] a, input[3:0] b, input s, 
     not(nb2,b[2]);
     not(nb3,b[3]);
 
+    wire cin;
+    xor(cin, sel[0], sel[1]);
 
     mux4x1(o1, b[0], nb0, 1'b0, 1'b1, sel[1], sel[0]);
     full_adder(out[0], c1, a[0], o1, cin);
@@ -73,5 +85,42 @@ module ac (output [3:0] out, output carry, input[3:0] a, input[3:0] b, input s, 
 
     mux4x1(o4, b[3], nb3, 1'b0, 1'b1, sel[1], sel[0]);
     full_adder(out[3], carry, a[3], o4, c3);
+
+endmodule
+
+//Logic Circuit 
+module lc (output [3:0] out, input[3:0] a, input[3:0] b, input[1:0] sel);
+
+    /* 
+                *----Description----*
+    * ANDING 2 numbers: s1 = 0, s0 = 0 or s1 = 0, s0 = 1 
+    * ORING 2 numbers: s1 = 1, s0 = 0 
+    * XORING 2 numbers: s1 = 1, s0 = 1 
+
+    */
+
+    wire and0, and1, and2, and3;
+    and(and0, a[0], b[0]);
+    and(and1, a[1], b[1]);
+    and(and2, a[2], b[2]);
+    and(and3, a[3], b[3]);
+
+    wire or0, or1, or2, or3;
+    or(or0, a[0], b[0]);
+    or(or1, a[1], b[1]);
+    or(or2, a[2], b[2]);
+    or(or3, a[3], b[3]);
+
+    wire xor0, xor1, xor2, xor3;
+    or(xor0, a[0], b[0]);
+    or(xor1, a[1], b[1]);
+    or(xor2, a[2], b[2]);
+    or(xor3, a[3], b[3]);
+
+
+    mux4x1(out[0], and0, and0, or0, xor0, sel[1], sel[0]);
+    mux4x1(out[1], and1, and1, or1, xor1, sel[1], sel[0]);
+    mux4x1(out[2], and2, and2, or2, xor2, sel[1], sel[0]);
+    mux4x1(out[3], and3, and3, or3, xor3, sel[1], sel[0]);
 
 endmodule
