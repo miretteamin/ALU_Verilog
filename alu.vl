@@ -10,7 +10,7 @@ module or_4 (output out, input a, input b,  input c, input d);
     wire orout1, orout2;
     or(orout1, a, b);
     or(orout2, c, d);
-    or(out, orout1, orout2)
+    or(out, orout1, orout2);
 endmodule
 
 //Full Adder
@@ -112,15 +112,15 @@ module lc (output [3:0] out, input[3:0] a, input[3:0] b, input[1:0] sel);
     or(or3, a[3], b[3]);
 
     wire xor0, xor1, xor2, xor3;
-    xor(xor0, a[0], b[0]);
-    xor(xor1, a[1], b[1]);
-    xor(xor2, a[2], b[2]);
-    xor(xor3, a[3], b[3]);
+    or(xor0, a[0], b[0]);
+    or(xor1, a[1], b[1]);
+    or(xor2, a[2], b[2]);
+    or(xor3, a[3], b[3]);
 
 
     mux4x1(out[0], and0, and0, or0, xor0, sel[1], sel[0]);
     mux4x1(out[1], and1, and1, or1, xor1, sel[1], sel[0]);
     mux4x1(out[2], and2, and2, or2, xor2, sel[1], sel[0]);
-    mux4x1(out[3], and3, and3, or3, xor3, sel[1], sel[0]);
+    mux4x1(out[3], and3, and3, or3, xor, sel[1], sel[0]);
 
 endmodule
