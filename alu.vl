@@ -112,10 +112,10 @@ module lc (output [3:0] out, input[3:0] a, input[3:0] b, input[1:0] sel);
     or(or3, a[3], b[3]);
 
     wire xor0, xor1, xor2, xor3;
-    or(xor0, a[0], b[0]);
-    or(xor1, a[1], b[1]);
-    or(xor2, a[2], b[2]);
-    or(xor3, a[3], b[3]);
+    xor(xor0, a[0], b[0]);
+    xor(xor1, a[1], b[1]);
+    xor(xor2, a[2], b[2]);
+    xor(xor3, a[3], b[3]);
 
 
     mux4x1(out[0], and0, and0, or0, xor0, sel[1], sel[0]);
