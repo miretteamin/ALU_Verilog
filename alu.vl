@@ -121,7 +121,7 @@ module lc (output [3:0] out, input[3:0] a, input[3:0] b, input[1:0] sel);
     mux4x1(out[0], and0, and0, or0, xor0, sel[1], sel[0]);
     mux4x1(out[1], and1, and1, or1, xor1, sel[1], sel[0]);
     mux4x1(out[2], and2, and2, or2, xor2, sel[1], sel[0]);
-    mux4x1(out[3], and3, and3, or3, xor, sel[1], sel[0]);
+    mux4x1(out[3], and3, and3, or3, xor3, sel[1], sel[0]);
 
 endmodule
 ////////////////////////////////////////
@@ -138,42 +138,65 @@ end
 assign PO = tmp;
 endmodule
 
+module ars (
+    [3:0]out,
+    [3:0]in,
+);
+
+    buf(out[0],in[1])
+    buf(out[1],in[2])
+    buf(out[2],in[3])
+    buf(out[3],in[3])
+    
+endmodule
+
 
 //arithmetic logic unit
 module alu (output [4:0] out , input [3:0] a , input [3:0] b , input [3:0]sel);
-    wire o0,o1,o2,o3 //ac output
-    wire l0,l1,l2,l3 // lc output
-    wire c1 , c2 , c3 , c4
-    wire cin 
-    wire shiftrig
-    wire f0,f1,f2,f3
+    // wire o0,o1,o2,o3 //ac output
+    wire [3:0] acout
+    // wire l0,l1,l2,l3 // lc output
+    wire [3:0]lcout,
+    // wire c1 , c2 , c3 , c4
+    wire outcarry,
+    // wire cin 
+    wire [3:0]shiftrig
+    wire [3:0]arsout
+    // wire f0,f1,f2,f3
     
     
-    ShiftRegister_SIPO (1,a[0],f0);
-    ShiftRegister_SIPO (1,a[1],f1);
-    ShiftRegister_SIPO (1,a[2],f2);
-    ShiftRegister_SIPO (1,a[3],f3);
+    
         /* 
     * Logic Circuit output s2 =0 \  s3=0
     *Arithmetic Circuit    s2=  0 \ s3 =1
     *shift right           s2 =  1 \ s3 = 0  Or s2 =  1 \ s3 = 1
 
     */
-    ac(o0,c1,a[0],b[0],sel[1],sel[0]);
-    lc(l0,a[0],b[0],sel[1],sel[0]);
-    mux4x1(f0 , o0 , l0 , shiftrig , ShiftRegister_SIPO , sel[2],sel[3]);
+    ac(acout,outcarry,a,b,{sel[1],sel[0]});
+    // ac(o0,c1,a[0],b[0],sel[1],sel[0]);
+    lc(lcout,a,b,{sel[1],sel[0]});
+    ars(arsout,a,b)
+
+    mux4x1(out[0],acout[0],lcout[0],arsout[0],arsout[0],sel[3],sel[2])
+    mux4x1(out[1],acout[1],lcout[1],arsout[1],arsout[1],sel[3],sel[2])
+    mux4x1(out[2],acout[2],lcout[2],arsout[2],arsout[2],sel[3],sel[2])
+    mux4x1(out[3],acout[3],lcout[3],arsout[3],arsout[3],sel[3],sel[2])
+    buf(out[4],outcarry)
+
+
+    // mux4x1(f0 , o0 , l0 , shiftrig , ShiftRegister_SIPO , sel[2],sel[3]);
     
-    ac(o1,c2,a[1],b[1],sel[1],sel[0]);
-    lc(l1,a[1],b[1],sel[1],sel[0]);
-    mux4x1(f1 , o1 , l1 , shiftrig , ShiftRegister_SIPO , sel[2],sel[3]);
+    // ac(o1,c2,a[1],b[1],sel[1],sel[0]);
+    // lc(l1,a[1],b[1],sel[1],sel[0]);
+    // mux4x1(f1 , o1 , l1 , shiftrig , ShiftRegister_SIPO , sel[2],sel[3]);
     
-    ac(o2,c3,a[2],b[2],sel[1],sel[0]);
-    lc(l2,a[2],b[2],sel[1],sel[0]);
-    mux4x1(f2 , o2 , l2 , shiftrig , ShiftRegister_SIPO , sel[2],sel[3]);
+    // ac(o2,c3,a[2],b[2],sel[1],sel[0]);
+    // lc(l2,a[2],b[2],sel[1],sel[0]);
+    // mux4x1(f2 , o2 , l2 , shiftrig , ShiftRegister_SIPO , sel[2],sel[3]);
     
-    ac(o3,c4,a[3],b[3],sel[1],sel[0]);
-    lc(l2,a[3],b[3],sel[1],sel[0]);
-    mux4x1(f3 , o3 , l3 , shiftrig , ShiftRegister_SIPO , sel[2],sel[3]);
+    // ac(o3,c4,a[3],b[3],sel[1],sel[0]);
+    // lc(l2,a[3],b[3],sel[1],sel[0]);
+    // mux4x1(f3 , o3 , l3 , shiftrig , ShiftRegister_SIPO , sel[2],sel[3]);
     
 endmodule
 ////////////////////
