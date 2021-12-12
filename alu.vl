@@ -167,9 +167,9 @@ module alu (output [4:0] out , input [3:0] a , input [3:0] b , input [3:0]sel);
     
     
         /* 
-    * Logic Circuit output s2 =0 \  s3=0
-    *Arithmetic Circuit    s2=  0 \ s3 =1
-    *shift right           s2 =  1 \ s3 = 0  Or s2 =  1 \ s3 = 1
+    * Logic Circuit output s3=0 / s2 =0   
+    *Arithmetic Circuit    s3 =0 /  s2=  1 
+    *shift right            s3 = 1 / s2 =  0 Or s3 = 1/  s2 =  1 
 
     */
     ac(acout,outcarry,a,b,{sel[1],sel[0]});
@@ -177,10 +177,10 @@ module alu (output [4:0] out , input [3:0] a , input [3:0] b , input [3:0]sel);
     lc(lcout,a,b,{sel[1],sel[0]});
     ars(arsout,a,b)
 
-    mux4x1(out[0],acout[0],lcout[0],arsout[0],arsout[0],sel[3],sel[2])
-    mux4x1(out[1],acout[1],lcout[1],arsout[1],arsout[1],sel[3],sel[2])
-    mux4x1(out[2],acout[2],lcout[2],arsout[2],arsout[2],sel[3],sel[2])
-    mux4x1(out[3],acout[3],lcout[3],arsout[3],arsout[3],sel[3],sel[2])
+    mux4x1(out[0],lcout[0],acout[0],arsout[0],arsout[0],sel[3],sel[2])
+    mux4x1(out[1],lcout[1],acout[1],arsout[1],arsout[1],sel[3],sel[2])
+    mux4x1(out[2],lcout[2],acout[2],arsout[2],arsout[2],sel[3],sel[2])
+    mux4x1(out[3],lcout[3],acout[3],arsout[3],arsout[3],sel[3],sel[2])
     buf(out[4],outcarry)
 
 
