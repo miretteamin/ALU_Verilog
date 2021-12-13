@@ -30,12 +30,12 @@ module mux4x1 (output out, input a,  input b,  input c, input d, input s1, input
     not(ns1,s1);
 
     wire o1, o2, o3, o4;
-    and_3(o1, ns0, ns1, a);
-    and_3(o2, s0, ns1, b);
-    and_3(o3, ns0, s1, c);
-    and_3(o4, s0, s1, d);
+    and_3 and_30(o1, ns0, ns1, a);
+    and_3 and_31(o2, s0, ns1, b);
+    and_3 and_32(o3, ns0, s1, c);
+    and_3 and_33(o4, s0, s1, d);
 
-    or_4(out, o1, o2, o3, o4);
+    or_4 or_40(out, o1, o2, o3, o4);
 endmodule
 
 //2x1 Multiplexer
@@ -74,17 +74,17 @@ module ac (output [3:0] out, output carry, input[3:0] a, input[3:0] b, input[1:0
     wire cin;
     xor(cin, sel[0], sel[1]);
 
-    mux4x1(o1, b[0], nb0, 1'b0, 1'b1, sel[1], sel[0]);
-    full_adder(out[0], c1, a[0], o1, cin);
+    mux4x1 mu0(o1, b[0], nb0, 1'b0, 1'b1, sel[1], sel[0]);
+    full_adder full_adder0(out[0], c1, a[0], o1, cin);
 
-    mux4x1(o2, b[1], nb1, 1'b0, 1'b1, sel[1], sel[0]);
-    full_adder(out[1], c2, a[1], o2, c1);
+    mux4x1 mu1(o2, b[1], nb1, 1'b0, 1'b1, sel[1], sel[0]);
+    full_adder full_adder1(out[1], c2, a[1], o2, c1);
 
-    mux4x1(o3, b[2], nb2, 1'b0, 1'b1, sel[1], sel[0]);
-    full_adder(out[2], c3, a[2], o3, c2);
+    mux4x1 mu2(o3, b[2], nb2, 1'b0, 1'b1, sel[1], sel[0]);
+    full_adder full_adder2(out[2], c3, a[2], o3, c2);
 
-    mux4x1(o4, b[3], nb3, 1'b0, 1'b1, sel[1], sel[0]);
-    full_adder(out[3], carry, a[3], o4, c3);
+    mux4x1 mu3(o4, b[3], nb3, 1'b0, 1'b1, sel[1], sel[0]);
+    full_adder full_adder3(out[3], carry, a[3], o4, c3);
 
 endmodule
 
@@ -118,10 +118,10 @@ module lc (output [3:0] out, input[3:0] a, input[3:0] b, input[1:0] sel);
     or(xor3, a[3], b[3]);
 
 
-    mux4x1(out[0], and0, and0, or0, xor0, sel[1], sel[0]);
-    mux4x1(out[1], and1, and1, or1, xor1, sel[1], sel[0]);
-    mux4x1(out[2], and2, and2, or2, xor2, sel[1], sel[0]);
-    mux4x1(out[3], and3, and3, or3, xor3, sel[1], sel[0]);
+    mux4x1 mu0(out[0], and0, and0, or0, xor0, sel[1], sel[0]);
+    mux4x1 mu1(out[1], and1, and1, or1, xor1, sel[1], sel[0]);
+    mux4x1 mu2(out[2], and2, and2, or2, xor2, sel[1], sel[0]);
+    mux4x1 mu3(out[3], and3, and3, or3, xor3, sel[1], sel[0]);
 
 endmodule
 ////////////////////////////////////////
@@ -138,15 +138,12 @@ end
 assign PO = tmp;
 endmodule
 
-module ars (
-    [3:0]out,
-    [3:0]in,
-);
+module ars (output [3:0]out, input[3:0]in);
 
-    buf(out[0],in[1])
-    buf(out[1],in[2])
-    buf(out[2],in[3])
-    buf(out[3],in[3])
+    buf(out[0],in[1]);
+    buf(out[1],in[2]);
+    buf(out[2],in[3]);
+    buf(out[3],in[3]);
     
 endmodule
 
@@ -154,14 +151,14 @@ endmodule
 //arithmetic logic unit
 module alu (output [4:0] out , input [3:0] a , input [3:0] b , input [3:0]sel);
     // wire o0,o1,o2,o3 //ac output
-    wire [3:0] acout
+    wire [3:0]acout;
     // wire l0,l1,l2,l3 // lc output
-    wire [3:0]lcout,
+    wire [3:0]lcout;
     // wire c1 , c2 , c3 , c4
-    wire outcarry,
+    wire outcarry;
     // wire cin 
-    wire [3:0]shiftrig
-    wire [3:0]arsout
+    wire [3:0]shiftrig;
+    wire [3:0]arsout;
     // wire f0,f1,f2,f3
     
     
@@ -172,16 +169,16 @@ module alu (output [4:0] out , input [3:0] a , input [3:0] b , input [3:0]sel);
     *shift right            s3 = 1 / s2 =  0 Or s3 = 1/  s2 =  1 
 
     */
-    ac(acout,outcarry,a,b,{sel[1],sel[0]});
+    ac ac1(acout,outcarry,a,b,{sel[1],sel[0]});
     // ac(o0,c1,a[0],b[0],sel[1],sel[0]);
-    lc(lcout,a,b,{sel[1],sel[0]});
-    ars(arsout,a,b)
+    lc lc1(lcout,a,b,{sel[1],sel[0]});
+    ars ars1(arsout,a);
 
-    mux4x1(out[0],lcout[0],acout[0],arsout[0],arsout[0],sel[3],sel[2])
-    mux4x1(out[1],lcout[1],acout[1],arsout[1],arsout[1],sel[3],sel[2])
-    mux4x1(out[2],lcout[2],acout[2],arsout[2],arsout[2],sel[3],sel[2])
-    mux4x1(out[3],lcout[3],acout[3],arsout[3],arsout[3],sel[3],sel[2])
-    buf(out[4],outcarry)
+    mux4x1 mu0(out[0],lcout[0],acout[0],arsout[0],arsout[0],sel[3],sel[2]);
+    mux4x1 mu1(out[1],lcout[1],acout[1],arsout[1],arsout[1],sel[3],sel[2]);
+    mux4x1 mu2(out[2],lcout[2],acout[2],arsout[2],arsout[2],sel[3],sel[2]);
+    mux4x1 mu3(out[3],lcout[3],acout[3],arsout[3],arsout[3],sel[3],sel[2]);
+    buf(out[4],outcarry);
 
 
     // mux4x1(f0 , o0 , l0 , shiftrig , ShiftRegister_SIPO , sel[2],sel[3]);
