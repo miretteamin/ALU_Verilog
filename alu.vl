@@ -202,7 +202,7 @@ module Test_ALU();
 
     reg [3:0] A;
     reg [3:0] B;
-    reg [4:0] s;
+    reg [3:0] s;
 
     wire [4:0] out;
 
