@@ -1,4 +1,4 @@
-//Anding 4 dataflow
+//Anding 3 dataflow
 module and_3 (output out, input a, input b,  input c);
     wire andout;
     and(andout, a, b);
@@ -112,10 +112,10 @@ module lc (output [3:0] out, input[3:0] a, input[3:0] b, input[1:0] sel);
     or(or3, a[3], b[3]);
 
     wire xor0, xor1, xor2, xor3;
-    or(xor0, a[0], b[0]);
-    or(xor1, a[1], b[1]);
-    or(xor2, a[2], b[2]);
-    or(xor3, a[3], b[3]);
+    xor(xor0, a[0], b[0]);
+    xor(xor1, a[1], b[1]);
+    xor(xor2, a[2], b[2]);
+    xor(xor3, a[3], b[3]);
 
 
     mux4x1 mu0(out[0], and0, and0, or0, xor0, sel[1], sel[0]);
@@ -143,7 +143,7 @@ module ars (output [3:0]out, input[3:0]in);
     buf(out[0],in[1]);
     buf(out[1],in[2]);
     buf(out[2],in[3]);
-    buf(out[3],in[3]);
+    buf(out[3],1);
     
 endmodule
 
@@ -163,22 +163,23 @@ module alu (output [4:0] out , input [3:0] a , input [3:0] b , input [3:0]sel);
     
     
     
-        /* 
+    /* 
     * Logic Circuit output s3=0 / s2 =0   
     *Arithmetic Circuit    s3 =0 /  s2=  1 
     *shift right            s3 = 1 / s2 =  0 Or s3 = 1/  s2 =  1 
 
     */
-    ac ac1(acout,outcarry,a,b,{sel[1],sel[0]});
+    
     // ac(o0,c1,a[0],b[0],sel[1],sel[0]);
     lc lc1(lcout,a,b,{sel[1],sel[0]});
     ars ars1(arsout,a);
-
+    ac ac1(acout,outcarry,a,b,{sel[1],sel[0]});
+    buf(out[4],outcarry);
     mux4x1 mu0(out[0],lcout[0],acout[0],arsout[0],arsout[0],sel[3],sel[2]);
     mux4x1 mu1(out[1],lcout[1],acout[1],arsout[1],arsout[1],sel[3],sel[2]);
     mux4x1 mu2(out[2],lcout[2],acout[2],arsout[2],arsout[2],sel[3],sel[2]);
     mux4x1 mu3(out[3],lcout[3],acout[3],arsout[3],arsout[3],sel[3],sel[2]);
-    buf(out[4],outcarry);
+    // buf(out[4],outcarry);
 
 
     // mux4x1(f0 , o0 , l0 , shiftrig , ShiftRegister_SIPO , sel[2],sel[3]);
@@ -195,5 +196,43 @@ module alu (output [4:0] out , input [3:0] a , input [3:0] b , input [3:0]sel);
     // lc(l2,a[3],b[3],sel[1],sel[0]);
     // mux4x1(f3 , o3 , l3 , shiftrig , ShiftRegister_SIPO , sel[2],sel[3]);
     
+endmodule
+
+module Test_ALU();
+
+    reg [3:0] A;
+    reg [3:0] B;
+    reg [4:0] s;
+
+    wire [4:0] out;
+
+    alu alu(out, A, B, s);
+
+    initial 
+    begin
+        $monitor($time, " carry=%b,    out = %b%b%b%b     ,    s = %b%b%b%b", out[4],out[3], out[2], out[1], out[0], s[3],s[2],s[1],s[0]);
+
+        A[3] <= 1; A[2] <=0 ; A[1] <= 0; A[0] <= 0;
+        B[3] <= 1; B[2] <= 0; B[1] <= 1; B[0] <= 1;
+
+        #10 s[3] <= 0; s[2] <= 0; s[1] <= 0; s[0] <= 0;
+        #10 s[3] <= 0; s[2] <= 0; s[1] <= 0; s[0] <= 1;
+        #10 s[3] <= 0; s[2] <= 0; s[1] <= 1; s[0] <= 0;
+        #10 s[3] <= 0; s[2] <= 0; s[1] <= 1; s[0] <= 1;
+        #10 s[3] <= 0; s[2] <= 1; s[1] <= 0; s[0] <= 0;
+        #10 s[3] <= 0; s[2] <= 1; s[1] <= 0; s[0] <= 1;
+        #10 s[3] <= 0; s[2] <= 1; s[1] <= 1; s[0] <= 0;
+        #10 s[3] <= 0; s[2] <= 1; s[1] <= 1; s[0] <= 1;
+        #10 s[3] <= 1; s[2] <= 0; s[1] <= 0; s[0] <= 0;
+        #10 s[3] <= 1; s[2] <= 0; s[1] <= 0; s[0] <= 1;
+        #10 s[3] <= 1; s[2] <= 0; s[1] <= 1; s[0] <= 0;
+        #10 s[3] <= 1; s[2] <= 0; s[1] <= 1; s[0] <= 1;
+        #10 s[3] <= 1; s[2] <= 1; s[1] <= 0; s[0] <= 0;
+        #10 s[3] <= 1; s[2] <= 1; s[1] <= 0; s[0] <= 1;
+        #10 s[3] <= 1; s[2] <= 1; s[1] <= 1; s[0] <= 0;
+        #10 s[3] <= 1; s[2] <= 1; s[1] <= 1; s[0] <= 1;
+
+        $finish;
+    end
 endmodule
 ////////////////////
