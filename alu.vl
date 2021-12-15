@@ -143,7 +143,7 @@ module ars (output [3:0]out, input[3:0]in);
     buf(out[0],in[1]);
     buf(out[1],in[2]);
     buf(out[2],in[3]);
-    buf(out[3],1);
+    buf(out[3],in[3]);
     
 endmodule
 
