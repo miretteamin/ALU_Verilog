@@ -126,17 +126,6 @@ module lc (output [3:0] out, input[3:0] a, input[3:0] b, input[1:0] sel);
 endmodule
 ////////////////////////////////////////
 
-module ShiftRegister_SIPO(C, SI, PO);
-input C,SI;
-output [3:0] PO;
-reg [3:0] tmp;
-
-always @(posedge C)
-begin
-tmp = {tmp[2:0], SI};
-end
-assign PO = tmp;
-endmodule
 
 module ars (output [3:0]out, input[3:0]in);
 
@@ -170,7 +159,6 @@ module alu (output [4:0] out , input [3:0] a , input [3:0] b , input [3:0]sel);
 
     */
     
-    // ac(o0,c1,a[0],b[0],sel[1],sel[0]);
     lc lc1(lcout,a,b,{sel[1],sel[0]});
     ars ars1(arsout,a);
     ac ac1(acout,outcarry,a,b,{sel[1],sel[0]});
@@ -179,22 +167,8 @@ module alu (output [4:0] out , input [3:0] a , input [3:0] b , input [3:0]sel);
     mux4x1 mu1(out[1],lcout[1],acout[1],arsout[1],arsout[1],sel[3],sel[2]);
     mux4x1 mu2(out[2],lcout[2],acout[2],arsout[2],arsout[2],sel[3],sel[2]);
     mux4x1 mu3(out[3],lcout[3],acout[3],arsout[3],arsout[3],sel[3],sel[2]);
-    // buf(out[4],outcarry);
 
 
-    // mux4x1(f0 , o0 , l0 , shiftrig , ShiftRegister_SIPO , sel[2],sel[3]);
-    
-    // ac(o1,c2,a[1],b[1],sel[1],sel[0]);
-    // lc(l1,a[1],b[1],sel[1],sel[0]);
-    // mux4x1(f1 , o1 , l1 , shiftrig , ShiftRegister_SIPO , sel[2],sel[3]);
-    
-    // ac(o2,c3,a[2],b[2],sel[1],sel[0]);
-    // lc(l2,a[2],b[2],sel[1],sel[0]);
-    // mux4x1(f2 , o2 , l2 , shiftrig , ShiftRegister_SIPO , sel[2],sel[3]);
-    
-    // ac(o3,c4,a[3],b[3],sel[1],sel[0]);
-    // lc(l2,a[3],b[3],sel[1],sel[0]);
-    // mux4x1(f3 , o3 , l3 , shiftrig , ShiftRegister_SIPO , sel[2],sel[3]);
     
 endmodule
 
@@ -210,10 +184,10 @@ module Test_ALU();
 
     initial 
     begin
-        $monitor($time, " carry=%b,    out = %b%b%b%b     ,    s = %b%b%b%b", out[4],out[3], out[2], out[1], out[0], s[3],s[2],s[1],s[0]);
+        $monitor($time, " carry=%b,    out = %b%b%b%b     ,    s = %b%b%b%b , a=%b%b%b%b,  b=%b%b%b%b", out[4],out[3], out[2], out[1], out[0], s[3],s[2],s[1],s[0],A[3], A[2], A[1], A[0], B[3], B[2], B[1], B[0]);
 
-        A[3] <= 1; A[2] <=0 ; A[1] <= 0; A[0] <= 0;
-        B[3] <= 1; B[2] <= 0; B[1] <= 1; B[0] <= 1;
+        A[3] <= 0; A[2] <=1 ; A[1] <= 0; A[0] <= 0;
+        B[3] <= 1; B[2] <= 1; B[1] <= 1; B[0] <= 0;
 
         #10 s[3] <= 0; s[2] <= 0; s[1] <= 0; s[0] <= 0;
         #10 s[3] <= 0; s[2] <= 0; s[1] <= 0; s[0] <= 1;
