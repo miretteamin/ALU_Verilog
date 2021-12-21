@@ -68,16 +68,21 @@ module ac (output [size-1:0] out, output carry, input[size-1:0] a, input[size-1:
     */
 
     wire nb[size-1:0],o[size-1:0],c[size-1:0];
+Genvar i
 
     for (i=0; i<size-1; i=i+1)
-    begin
-        not (nb[i],b[i]);
-    end 
+        begin
+            not (nb[i],b[i]);
+        end 
+
+
     
     wire cin;
     xor(cin, sel[0], sel[1]);
 
-    for (i=0; i<size-1; i=i+1)begin
+
+    for (i=0; i<size-1; i=i+1)
+    begin
         mux4x1 mu0(o[i], b[i], nb[i], 1'b0, 1'b1, sel[1], sel[0]);
         full_adder full_adder0(out[i], c[i], a[i], o[i], cin);
             
@@ -103,6 +108,8 @@ module lc (output [size-1:0] out, input[size-1:0] a, input[size-1:0] b, input[1:
     * XORING 2 numbers: s1 = 1, s0 = 1 
 
     */
+    Genvar i
+
 
     wire andd[size-1:0];
     for (i=0; i<size-1; i=i+1)
@@ -135,6 +142,7 @@ endmodule
 
 
 module ars (output [size-1:0]out, input[size-1:0]in);
+Genvar i
 
 for (i=0; i<size-1; i=i+1)
 begin
@@ -169,7 +177,8 @@ module alu (output [size:0] out , input [size-1:0] a , input [size-1:0] b , inpu
     *shift right            s3 = 1 / s2 =  0 Or s3 = 1/  s2 =  1 
 
     */
-    
+    Genvar i
+
     lc lc1(lcout,a,b,{sel[1],sel[0]});
     ars ars1(arsout,a);
     ac ac1(acout,outcarry,a,b,{sel[1],sel[0]});
@@ -184,6 +193,8 @@ module alu (output [size:0] out , input [size-1:0] a , input [size-1:0] b , inpu
 endmodule
 
 module Test_ALU();
+Genvar i
+
     reg [size-1:0] A;
     reg [size-1:0] B;
     reg [size-1:0] s;
