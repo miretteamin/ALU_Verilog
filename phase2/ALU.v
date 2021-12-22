@@ -1,7 +1,9 @@
+// module param ();
+// integer sizze ;
+// endmodule
+`define REALSIZE 5
 //Anding 3 dataflow
-module param ();
-integer sizze ;
-endmodule
+
 
 module and_3 (output out, input a, input b,  input c);
     wire andout;
@@ -55,8 +57,8 @@ module mux2x1 (output out, input a,  input b, input s);
 endmodule
 
 //Arithmetic Circuit: 4 operations
-module ac (output [size-1:0] out, output carry, input[size-1:0] a, input[size-1:0] b, input[1:0] sel, size);
-
+module ac (output [size-1:0] out, output carry, input[size-1:0] a, input[size-1:0] b, input[1:0] sel);
+    parameter size = `REALSIZE ;
     /* 
                 *----Description----*
     * Adding 2 numbers: s1 = 0 , s0 = 0, cin = 0
@@ -67,32 +69,32 @@ module ac (output [size-1:0] out, output carry, input[size-1:0] a, input[size-1:
     * So, cin is XOR of s0 and s1  then cin will be 1 in case of adding 1 to number and subtraction 2 numbers
     */
 
-    wire nb[size-1:0],o[size-1:0],c[size-1:0];
-Genvar i
-
-    for (i=0; i<size-1; i=i+1)
-        begin
-            not (nb[i],b[i]);
-        end 
-
-
-    
+    wire nb[size-1:0],o[size-1:0],c[size:0];
     wire cin;
     xor(cin, sel[0], sel[1]);
+    buf (c[0],cin);
+    generate
+    genvar i;
 
+    // for (i=0; i<size-1; i=i+1)
+    // begin
+    // end 
+    
+    
 
-    for (i=0; i<size-1; i=i+1)
+    for (i=0; i<size; i=i+1)
     begin
+        not (nb[i],b[i]);
         mux4x1 mu0(o[i], b[i], nb[i], 1'b0, 1'b1, sel[1], sel[0]);
-        full_adder full_adder0(out[i], c[i], a[i], o[i], cin);
+        full_adder full_adder0(out[i], c[i+1], a[i], o[i], c[i]);
             
-        if (!(i + 1 < size - 1)) 
-        begin
-            mux4x1 mu3(o4, b[size - 1], nb[size - 1], 1'b0, 1'b1, sel[1], sel[0]);
-            full_adder full_adder3(out[size - 1], carry, a[size - 1], o[size - 1], c[size - 1]);
-        end
+        // if (!(i + 1 < size - 1)) 
+        // begin
+        //     end
     end
-
+    buf(carry,c[size]);
+    endgenerate
+    
 
    
 
@@ -108,33 +110,40 @@ module lc (output [size-1:0] out, input[size-1:0] a, input[size-1:0] b, input[1:
     * XORING 2 numbers: s1 = 1, s0 = 1 
 
     */
-    Genvar i
-
-
-    wire andd[size-1:0];
-    for (i=0; i<size-1; i=i+1)
-        begin
-            and(andd[i], a[i], b[i]);
-        end
+    parameter size = `REALSIZE ;
 
     wire orr[size-1:0];
-    for (i=0; i<size-1; i=i+1)
-        begin
-            or(orr[i], a[i], b[i]);
-        end
-
     wire xorr[size-1:0];
-    for (i=0; i<size-1; i=i+1)
-        begin
-            xor(xorr[i], a[i], b[i]);
-        end
+    wire andd[size-1:0];
+
+
+    generate
+    genvar  i;
+    for (i=0; i<size; i=i+1)
+    begin
+        and(andd[i], a[i], b[i]);
+        or(orr[i], a[i], b[i]);
+        xor(xorr[i], a[i], b[i]);
+    mux4x1 mu0(out[i], andd[i], andd[i], orr[i], xorr[i], sel[1], sel[0]);
+    end
+
+    // for (i=0; i<size-1; i=i+1)
+    //     begin
+    //     end
+
+    // for (i=0; i<size-1; i=i+1)
+    //     begin
+    //     end
 
 
     
-    for (i=0; i<size-1; i=i+1)
-    begin
-        mux4x1 mu0(out[i], andd[i], andd[i], orr[i], xorr[i], sel[1], sel[0]);
-    end
+    // for (i=0; i<size-1; i=i+1)
+    // begin
+    // end
+    endgenerate
+
+
+    
    
 
 endmodule
@@ -142,16 +151,19 @@ endmodule
 
 
 module ars (output [size-1:0]out, input[size-1:0]in);
-Genvar i
-
-for (i=0; i<size-1; i=i+1)
-begin
-    buf(out[i],in[i+1]);
-    if (!(i + 1 < size - 1))
+    parameter size = `REALSIZE ;
+generate
+    genvar i;
+    for (i=0; i<size-1; i=i+1)
     begin
-        buf(out[size-1:0],in[size-1:0]);
+        buf(out[i],in[i+1]);
+        // if (!(i + 1 < size - 1))
+        // begin
+            
+        // end
     end
-end
+endgenerate
+buf(out[size-1],in[size-1]);
     
 endmodule
 
@@ -159,6 +171,8 @@ endmodule
 //arithmetic logic unit
 module alu (output [size:0] out , input [size-1:0] a , input [size-1:0] b , input [3:0]sel);
     // wire o0,o1,o2,o3 //ac output
+    parameter size = `REALSIZE ;
+
     wire [size-1:0]acout;
     // wire l0,l1,l2,l3 // lc output
     wire [size-1:0]lcout;
@@ -172,32 +186,37 @@ module alu (output [size:0] out , input [size-1:0] a , input [size-1:0] b , inpu
     
     
     /* 
-    * Logic Circuit output s3=0 / s2 =0   
+    * Logic Circuit output s3=0 / s2 =0       
     *Arithmetic Circuit    s3 =0 /  s2=  1 
     *shift right            s3 = 1 / s2 =  0 Or s3 = 1/  s2 =  1 
 
     */
-    Genvar i
-
+    
     lc lc1(lcout,a,b,{sel[1],sel[0]});
     ars ars1(arsout,a);
     ac ac1(acout,outcarry,a,b,{sel[1],sel[0]});
     buf(out[size],outcarry);
-    for (i=0; i<size-1; i=i+1)
+
+    generate
+    genvar i;
+
+    for (i=0; i<size; i=i+1)
     begin
         mux4x1 mu0(out[i],lcout[i],acout[i],arsout[i],arsout[i],sel[3],sel[2]);
     end
+    endgenerate
+    
 
 
     
 endmodule
 
 module Test_ALU();
-Genvar i
-
+// Genvar i
+    parameter size = `REALSIZE ;
     reg [size-1:0] A;
     reg [size-1:0] B;
-    reg [size-1:0] s;
+    reg [3  :0] s;
 
     wire [size:0] out;
 
@@ -205,10 +224,13 @@ Genvar i
 
     initial 
     begin
-        $monitor($time, " carry=%b,    out = %b%b%b%b     ,    s = %b%b%b%b , a=%b%b%b%b,  b=%b%b%b%b", out[4],out[3], out[2], out[1], out[0], s[3],s[2],s[1],s[0],A[3], A[2], A[1], A[0], B[3], B[2], B[1], B[0]);
+        // $monitor($time, " carry=%b,    out = %b%b%b%b     ,    s = %b%b%b%b , a=%b%b%b%b,  b=%b%b%b%b", out[4],out[3], out[2], out[1], out[0], s[3],s[2],s[1],s[0],A[3], A[2], A[1], A[0], B[3], B[2], B[1], B[0]);
+        $monitor($time, " carry=%b,    out = %b%b%b%b%b     ,    s = %b%b%b%b , a=%b%b%b%b%b,  b=%b%b%b%b%b",out[5], out[4],out[3], out[2], out[1], out[0], s[3],s[2],s[1],s[0],A[4],A[3], A[2], A[1], A[0],B[4], B[3], B[2], B[1], B[0]);
 
-        A[3] <= 0; A[2] <=1 ; A[1] <= 0; A[0] <= 0;
-        B[3] <= 1; B[2] <= 1; B[1] <= 1; B[0] <= 0;
+    //    A[4] <= 0; A[3] <= 0; A[2] <=1 ; A[1] <= 0; A[0] <= 0;
+       A[4] <= 0; A[3] <= 1; A[2] <=1 ; A[1] <= 0; A[0] <= 0; // 12 -  6 = 6
+    //    B[4] <= 1;B[3] <= 0; B[2] <= 1; B[1] <= 1; B[0] <= 0;
+       B[4] <= 0;B[3] <= 0; B[2] <= 1; B[1] <= 1; B[0] <= 0;
 
         #10 s[3] <= 0; s[2] <= 0; s[1] <= 0; s[0] <= 0;
         #10 s[3] <= 0; s[2] <= 0; s[1] <= 0; s[0] <= 1;
